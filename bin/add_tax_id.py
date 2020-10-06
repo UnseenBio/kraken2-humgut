@@ -19,11 +19,10 @@
 """Add taxonomy identifiers to HumGut genome FASTA records."""
 
 
+import csv
 import logging
 import sys
 from typing import Dict, List
-
-import pandas as pd
 
 
 logger = logging.getLogger(__name__)
@@ -37,13 +36,11 @@ def add_tax_id_to_header(header: str, mapping: Dict[str, str]) -> str:
 
 def main(argv: List[str]) -> None:
     """"""
-    table = pd.read_table(argv[0])
-    mapping = {
-        i: str(t)
-        for i, t in table[["centroid_genome_id", "tax_id"]].itertuples(
-            index=False, name=None
-        )
-    }
+    with open(argv[0], newline="") as handle:
+        mapping = {
+            row["centroid_genome_id"]: row["tax_id"]
+            for row in csv.DictReader(handle, delimiter="\t")
+        }
     with open(argv[1]) as source, open(argv[2], "w") as target:
         content = []
         for line in source:
